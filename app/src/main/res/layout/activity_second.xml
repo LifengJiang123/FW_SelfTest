@@ -5,29 +5,21 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".SecondActivity">
 
     <Button
-        android:id="@+id/btn_2_FirstActivity"
+        android:id="@+id/btn_send_broadcast_standard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="ContentProvider"
+        android:text="发送标准广播"
         android:gravity="center"
         android:textAllCaps="false"/>
 
     <Button
-        android:id="@+id/btn_2_SecondActivity"
+        android:id="@+id/btn_send_broadcast_order"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Broadcast"
-        android:gravity="center"
-        android:textAllCaps="false"/>
-
-    <Button
-        android:id="@+id/btn_2_ThirdActivity"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Service"
+        android:text="发送有序广播"
         android:gravity="center"
         android:textAllCaps="false"/>
 
