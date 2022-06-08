@@ -14,68 +14,65 @@ import android.widget.Toast;
 public class SecondActivity extends AppCompatActivity {
 
     private TimeChangeReceivere timeChangeReceivere;
-    private Test1Receiver t1;
-    private Test2Receiver t2;
-    private Test3Receiver t3;
+    private BroadcastReceiver testReceiver1;
+    private BroadcastReceiver testReceiver2;
 
-    private T1 t11;
-    private T2 t22;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_second);
 
+        // 接收系统广播 -- 通过动态方式注册 // 没实现
         IntentFilter intentFilter = new IntentFilter();
-//        intentFilter.addAction("android.intent.action.TIMEZONE_CHANGED");
+        // intentFilter.addAction("android.intent.action.TIMEZONE_CHANGED");
         intentFilter.addAction(Intent.ACTION_TIME_CHANGED);
         timeChangeReceivere = new TimeChangeReceivere();
         registerReceiver(timeChangeReceivere, intentFilter);
 
-
+        /* 发送一条 自定义的 标准广播 -- 通过静态方式注册 -- 8.0前后有差*/
         findViewById(R.id.btn_send_broadcast_standard).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent("com.unisoc.fw_selftest.MY_BROADCAST_RECEIVER");
-                // android 8.0 以后的问题
-                intent.setComponent( new ComponentName( "com.unisoc.fw_selftest", "com.unisoc.fw_selftest.MyBroadcastReceiver") );
+                // 8.0以后的版本需要指明该广播是发送到哪一个地方的
+                intent.setComponent(new ComponentName( "com.unisoc.fw_selftest", "com.unisoc.fw_selftest.MyBroadcastReceiver") );
                 sendBroadcast(intent);
             }
         });
 
+        testReceiver1 = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Toast.makeText(context, "有序广播1", Toast.LENGTH_SHORT).show();
+            }
+        };
 
-        IntentFilter filter2 = new IntentFilter();
-        filter2.addAction("x.xx.xxx.有序");
-        filter2.setPriority(999);
-        registerReceiver(new Test2Receiver(), filter2);
+        testReceiver2 = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Toast.makeText(context, "有序广播2", Toast.LENGTH_SHORT).show();
+            }
+        };
 
-        IntentFilter filter1 = new IntentFilter();
-        filter1.addAction("x.xx.xxx.有序");
-        filter1.setPriority(1000);
-        registerReceiver(new Test1Receiver(), filter1);
-
-        IntentFilter filter3 = new IntentFilter();
-        filter3.addAction("x.xx.xxx.有序");
-        filter3.setPriority(998);
-        registerReceiver(new Test3Receiver(), filter3);
-
+        /* 发送有序广播 -- 会接收到2个Toas提示 */
         IntentFilter i1 = new IntentFilter();
-        IntentFilter i2 = new IntentFilter();
-        i1.addAction("aaaaa.bbbd");
-        i2.addAction("aaaaa.bbbd");
-        registerReceiver(new T1(), i1);
-        registerReceiver(new T2(), i2);
+        i1.addAction("com.unisoc.fw.orderBroadcastReceiver_test");
+        i1.setPriority(100);
+        registerReceiver(testReceiver1, i1);
 
+        IntentFilter i2 = new IntentFilter();
+        i2.addAction("com.unisoc.fw.orderBroadcastReceiver_test");
+        i2.setPriority(95);
+        registerReceiver(testReceiver2, i2);
 
         findViewById(R.id.btn_send_broadcast_order).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
-//                intent.setAction("x.xx.xxx.有序");
-                intent.setAction("aaaaa.bbbd");
+                intent.setAction("com.unisoc.fw.orderBroadcastReceiver_test");
                 //发送一个有序广播
                 sendOrderedBroadcast(intent, null);
-
             }
         });
 
@@ -85,59 +82,22 @@ public class SecondActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(timeChangeReceivere);
+        unregisterReceiver(testReceiver1);
+        unregisterReceiver(testReceiver2);
 
-    }
-
-    class TimeChangeReceivere extends BroadcastReceiver{
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Toast.makeText(context,"接收到时间变化的系统广播", Toast.LENGTH_SHORT).show();
-        }
     }
 }
 
-class T1 extends BroadcastReceiver{
+/**
+ * 定义时间变化的类，继承自BroadcastReceiver
+ */
+class TimeChangeReceivere extends BroadcastReceiver{
     @Override
     public void onReceive(Context context, Intent intent) {
-        Toast.makeText(context, "111", Toast.LENGTH_SHORT).show();
-    }
-}
-
-class T2 extends BroadcastReceiver {
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        Toast.makeText(context, "222", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context,"接收到时间变化的系统广播", Toast.LENGTH_SHORT).show();
     }
 }
 
 
-//广播接收者：有序广播-1
-class Test1Receiver extends BroadcastReceiver {
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        String resultData = getResultData();
-        //有序广播里终止广播
-        //abortBroadcast();
-        setResultData("国家发放补贴800");
-        Toast.makeText(context, "省接收："+resultData, Toast.LENGTH_SHORT).show();
-    }
-}
 
-//广播接收者：有序广播-2
-class Test2Receiver extends BroadcastReceiver {
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        String resultData = getResultData();
-        setResultData("国家发放补贴600");
-        Toast.makeText(context, "市接收："+resultData, Toast.LENGTH_SHORT).show();
-    }
-}
 
-//广播接收者：有序广播-3
-class Test3Receiver extends BroadcastReceiver {
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        String resultData = getResultData();
-        Toast.makeText(context, "县接收："+resultData, Toast.LENGTH_SHORT).show();
-    }
-}

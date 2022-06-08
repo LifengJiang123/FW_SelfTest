@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.unisoc.fw_selftest">
 
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,6 +15,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FW_SelfTest"
         tools:targetApi="31">
+        <provider
+            android:name=".MyContentProvider"
+            android:authorities="com.unisoc.fw_selftest.provider"
+            android:enabled="true"
+            android:exported="true"></provider>
+
+        <service
+            android:name=".FirstService"
+            android:enabled="true"
+            android:exported="true" />
+
         <receiver
             android:name=".AnotherBroadcastReceiver"
             android:enabled="true"
@@ -21,7 +34,6 @@
                 <action android:name="com.unisoc.fw_selftest.MY_BROADCAST_RECEIVER" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".MyBroadcastReceiver"
             android:enabled="true"
