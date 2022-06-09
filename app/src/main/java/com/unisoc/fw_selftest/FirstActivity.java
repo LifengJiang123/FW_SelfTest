@@ -7,10 +7,15 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.util.Log;
+import android.view.View;
 import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -23,66 +28,79 @@ import java.util.List;
  * */
 public class FirstActivity extends AppCompatActivity {
 
-    private List<String> contactlist = new ArrayList<>();
-    private ArrayAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_first);
 
-        // 二 ContentResolver使用例子，访问其他的ContentProvider 以访问通讯录为例
-        // 1 xml文件上定义ListView
-        // 2 定义列表，将要展示的数据存储进去
-        // 3 构造适配器对象
-        adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, contactlist);
-        // 4 获取LitView的实例，并将ListView绑定到适配器上
-        ListView listView = (ListView) findViewById(R.id.listview_show_contact);
-        listView.setAdapter(adapter);
+        // "author text, " + "price real, " + "pages integer, " + "name text)";
+        // 一 访问自己的ContentProvider
 
-        // 申请运行时权限
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS} ,1);
-        } else {
-            readContacts();
-        }
+        findViewById(R.id.btn_addData).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Uri uri = Uri.parse("content://com.unisoc.fw_database.provider/Book");
 
-    }
+                ContentValues contentValues = new ContentValues();
+                contentValues.put("name", "A Clash of Kings");
+                contentValues.put("author", "Martin");
+                contentValues.put("pages", "1040");
+                contentValues.put("price", "22.85");
 
-    /**
-     * 读取联系人信息
-     * */
-    private void readContacts() {
-        // 得到一个ContentResolver对象
-        ContentResolver contentResolver = getContentResolver();
-        // query方法返回一个cursor对象
-        Cursor cursor = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
-        // or
-        // Cursor cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
-        // moveToNext方法返回的是一个boolean类型的数据
-        if (cursor != null && cursor.moveToFirst()) {
-            while (cursor.moveToNext()) {
-                // 读取通讯录的姓名
-                @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                // 读取通讯录的号码
-                @SuppressLint("Range") String number = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                Uri newuri = getContentResolver().insert(uri, contentValues);  // 会返回新增数据的id
 
-                System.out.println(name);
-                System.out.println(number);
-
-                contactlist.add(name);
-                contactlist.add(number);
+                String id = newuri.getPathSegments().get(1);
+                Log.d("btn_addData","success");
+                System.out.println("add success");
             }
+        });
 
-            // 刷新listview
-            adapter.notifyDataSetChanged();
-            // 关闭cursor
-            cursor.close();
-            // AndroidManifest.xml中声明读取联系人的权限
-            // <uses-permission android:name="android.permission.READ_CONTACTS"/>
+        findViewById(R.id.btn_queryData).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Uri uri = Uri.parse("content://com.unisoc.fw_database.provider/Book");
+                Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+                while (cursor.moveToNext()){
+                    String name = getString(cursor.getColumnIndex("name"));
+                    System.out.println(name);
+                    Log.d("btn_queryData","success");
+                }
+                cursor.close();
+            }
+        });
 
-        }
+        findViewById(R.id.btn_updateData).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Uri uri = Uri.parse("content://com.unisoc.fw_database.provider/Book");  // 未完成,未说明哪一行
+                ContentValues contentValues = new ContentValues();
+                contentValues.put("name", "A Store");
+                contentValues.put("price", "24.05");
+                getContentResolver().update(uri, contentValues, null, null);
+                Log.d("btn_updateData","success");
+            }
+        });
+
+        findViewById(R.id.btn_deleteData).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Uri uri = Uri.parse("content://com.unisoc.fw_database.provider/Book");  // 未完成
+                getContentResolver().delete(uri, null, null);
+                Log.d("btn_deleteData","success");
+            }
+        });
+
+        // 跳转到联系人界面
+        findViewById(R.id.btn_creat_database).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(FirstActivity.this, FourthActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
+
     }
-
-
 }

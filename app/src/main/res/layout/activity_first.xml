@@ -7,9 +7,35 @@
     android:layout_height="match_parent"
     tools:context=".FirstActivity">
 
-    <ListView
-        android:id="@+id/listview_show_contact"
+
+    <Button
+        android:id="@+id/btn_addData"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="ADD" />
+
+    <Button
+        android:id="@+id/btn_queryData"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Query" />
+
+    <Button
+        android:id="@+id/btn_updateData"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Update" />
+
+    <Button
+        android:id="@+id/btn_deleteData"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Delete" />
+
+    <Button
+        android:id="@+id/btn_creat_database"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Creat Database" />
 
 </LinearLayout>

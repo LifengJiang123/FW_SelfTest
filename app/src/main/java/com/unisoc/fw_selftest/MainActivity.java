@@ -2,9 +2,13 @@ package com.unisoc.fw_selftest;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,6 +43,40 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(i3);
             }
         });
+
+
+        // 测试anr
+        // 1 主线程
+        // 2 超时时间，根据前后文的不同响应时间不同
+        // 3 输入事件：按键、触摸  or  特定事件：广播（10s）service（20s）
+        // 按钮的延时
+        Intent i5 = new Intent(MainActivity.this, FifthActivity.class);
+        Timer timer = new Timer();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                startActivity(i5);
+            }
+        };
+        // 不会抛出ANR
+        findViewById(R.id.btn_2_FifthAcivity).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                timer.schedule(task, 10000);
+            }
+        });
+
+        // 发送广播的方式  // 最好加个按钮
+        Intent intentFilter = new Intent("aaaaaa");
+        findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                intentFilter.setComponent(new ComponentName( "com.unisoc.fw_selftest", "com.unisoc.fw_selftest.MyBroadcastReceiver") );
+                sendBroadcast(intentFilter);
+                System.out.println(11);
+            }
+        });
+
 
     }
 }
